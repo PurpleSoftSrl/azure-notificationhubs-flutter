@@ -28,7 +28,8 @@ public class RegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = getSharedPreferences(
+                "com.swiftoffice.azure_notificationhubs_flutter_preferences", this.MODE_PRIVATE);
         String resultString = null;
         String regID = null;
         try {

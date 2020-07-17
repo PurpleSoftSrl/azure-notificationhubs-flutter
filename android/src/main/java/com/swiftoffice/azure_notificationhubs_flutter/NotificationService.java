@@ -1,22 +1,21 @@
 package com.swiftoffice.azure_notificationhubs_flutter;
 
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-
-import androidx.annotation.NonNull;
-import android.R;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -39,11 +38,10 @@ public class NotificationService extends FirebaseMessagingService {
             "com.swiftoffice.azure_notificationhubs_flutter.NOTIFICATION_DATA";
     public static final String EXTRA_TOKEN = "com.swiftoffice.azure_notificationhubs_flutter.TOKEN_DATA";
 
-    private NotificationManager mNotificationManager;
-    private static Context ctx;
+
 
     @Override
-    public void onMessageReceived(RemoteMessage message) {
+    public void onMessageReceived(@NonNull RemoteMessage message) {
         Map<String, Object> content = parseRemoteMessage(message);
         Intent intent = new Intent(ACTION_REMOTE_MESSAGE);
         intent.putExtra(EXTRA_REMOTE_MESSAGE, message);
@@ -51,8 +49,13 @@ public class NotificationService extends FirebaseMessagingService {
         sendNotification(content);
     }
 
+    @Override
+    public void onNewToken(@NonNull String s) {
+        super.onNewToken(s);
+    }
+
     private void sendNotification(Map<String, Object> content) {
-        ctx = getApplicationContext();
+        Context ctx = getApplicationContext();
         Class mainActivity;
         try {
             String packageName = ctx.getPackageName();
@@ -61,7 +64,7 @@ public class NotificationService extends FirebaseMessagingService {
             mainActivity = Class.forName(activityName);
             Intent intent = new Intent(ctx, mainActivity);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            mNotificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager mNotificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
                 intent, PendingIntent.FLAG_ONE_SHOT);
             Resources resources = ctx.getPackageManager().getResourcesForApplication(packageName);
@@ -74,7 +77,7 @@ public class NotificationService extends FirebaseMessagingService {
                 .setContentText(((Map) content.get("data")).get("body").toString())
                 .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE | DEFAULT_ALL)
                 .setPriority(PRIORITY_HIGH)
-                .setSmallIcon(R.drawable.ic_menu_manage)
+                .setSmallIcon(resId)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, resId))
                 .setContentIntent(contentIntent)
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
@@ -87,7 +90,7 @@ public class NotificationService extends FirebaseMessagingService {
     }
 
     public static void createChannelAndHandleNotifications(Context context) {
-        ctx = context;
+        //ctx = context;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,

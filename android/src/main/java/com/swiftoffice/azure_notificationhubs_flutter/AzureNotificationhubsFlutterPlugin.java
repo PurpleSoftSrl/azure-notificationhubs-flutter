@@ -1,7 +1,16 @@
 package com.swiftoffice.azure_notificationhubs_flutter;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.firebase.messaging.RemoteMessage;
+
+import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -10,37 +19,15 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-
-import com.google.firebase.messaging.RemoteMessage;
-
-import java.util.Map;
-
 public class AzureNotificationhubsFlutterPlugin extends BroadcastReceiver implements FlutterPlugin, MethodCallHandler {
 
     private static Context applicationContext;
     private MethodChannel channel;
 
-    //    This static function is optional and equivalent to onAttachedToEngine. It supports the old
-    //    pre-Flutter-1.12 Android projects. You are encouraged to continue supporting
-    //    plugin registration via this function while apps migrate to use the new Android APIs
-    //    post-flutter-1.12 via https://flutter.dev/go/android-project-migration.
-    //
-    //    It is encouraged to share logic between onAttachedToEngine and registerWith to keep
-    //    them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
-    //    depending on the user's project. onAttachedToEngine or registerWith must both be defined
-    //    in the same class.
-    //    public static void registerWith(PluginRegistry.Registrar registrar) {
-    //        AzureNotificationhubsFlutterPlugin instance = new AzureNotificationhubsFlutterPlugin();
-    //        instance.onAttachedToEngine(registrar.context(), registrar.messenger());
-    //    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        onAttachedToEngine(binding.getApplicationContext(), binding.getFlutterEngine().getDartExecutor());
+        onAttachedToEngine(binding.getApplicationContext(), binding.getBinaryMessenger());
     }
 
     @Override
@@ -49,7 +36,7 @@ public class AzureNotificationhubsFlutterPlugin extends BroadcastReceiver implem
     }
 
     private void onAttachedToEngine(Context context, BinaryMessenger binaryMessenger) {
-        this.applicationContext = context;
+        applicationContext = context;
         channel = new MethodChannel(binaryMessenger, "azure_notificationhubs_flutter");
         channel.setMethodCallHandler(this);
         IntentFilter intentFilter = new IntentFilter();
@@ -89,8 +76,4 @@ public class AzureNotificationhubsFlutterPlugin extends BroadcastReceiver implem
             channel.invokeMethod("onMessage", content);
         }
     }
-
-
-
-
 }
