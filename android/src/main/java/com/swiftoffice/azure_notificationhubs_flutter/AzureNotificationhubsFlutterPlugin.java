@@ -23,6 +23,7 @@ public class AzureNotificationhubsFlutterPlugin extends BroadcastReceiver implem
 
     private static Context applicationContext;
     private MethodChannel channel;
+    private static final String TAG = "ANH_FLUTTER";
 
 
     @Override

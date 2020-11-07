@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -17,6 +18,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,10 +41,16 @@ public class NotificationService extends FirebaseMessagingService {
             "com.swiftoffice.azure_notificationhubs_flutter.NOTIFICATION_DATA";
     public static final String EXTRA_TOKEN = "com.swiftoffice.azure_notificationhubs_flutter.TOKEN_DATA";
 
+    private static final String TAG = "ANH_FLUTTER";
 
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
+        Collection<String> str = new ArrayList<String>();
+        message.getData().forEach((s, s2) -> {
+            str.add(s + ":" + s2);
+        });
+        Log.d(TAG, "onMessageReceived: " + String.join(";\r\n", str));
         Map<String, Object> content = parseRemoteMessage(message);
         Intent intent = new Intent(ACTION_REMOTE_MESSAGE);
         intent.putExtra(EXTRA_REMOTE_MESSAGE, message);
@@ -55,6 +64,7 @@ public class NotificationService extends FirebaseMessagingService {
     }
 
     private void sendNotification(Map<String, Object> content) {
+        Log.d(TAG, "sendNotification: start");
         Context ctx = getApplicationContext();
         Class mainActivity;
         try {
@@ -66,26 +76,30 @@ public class NotificationService extends FirebaseMessagingService {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             NotificationManager mNotificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
-                intent, PendingIntent.FLAG_ONE_SHOT);
+                    intent, PendingIntent.FLAG_ONE_SHOT);
             Resources resources = ctx.getPackageManager().getResourcesForApplication(packageName);
             int resId = resources.getIdentifier("ic_launcher", "mipmap", packageName);
             Drawable icon = resources.getDrawable(resId);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                     ctx,
                     NOTIFICATION_CHANNEL_ID)
-                .setContentTitle(((Map) content.get("data")).get("title").toString())
-                .setContentText(((Map) content.get("data")).get("body").toString())
-                .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE | DEFAULT_ALL)
-                .setPriority(PRIORITY_HIGH)
-                .setSmallIcon(resId)
-                .setLargeIcon(BitmapFactory.decodeResource(resources, resId))
-                .setContentIntent(contentIntent)
-                .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-                .setAutoCancel(true);
-            int m = (int)((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+                    .setContentTitle(((Map) content.get("data")).get("title").toString())
+                    .setContentText(((Map) content.get("data")).get("body").toString())
+                    .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE | DEFAULT_ALL)
+                    .setPriority(PRIORITY_HIGH)
+                    .setSmallIcon(resId)
+                    .setLargeIcon(BitmapFactory.decodeResource(resources, resId))
+                    .setContentIntent(contentIntent)
+                    .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
+                    .setAutoCancel(true);
+            int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
             mNotificationManager.notify(m, notificationBuilder.build());
+            Log.d(TAG, "sendNotification: END OK");
+
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d(TAG, "sendNotification: END KO " + e.getMessage());
+
         }
     }
 
@@ -93,9 +107,9 @@ public class NotificationService extends FirebaseMessagingService {
         //ctx = context;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH);
+                    NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
             channel.enableVibration(true);
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);

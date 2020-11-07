@@ -3,19 +3,15 @@ package com.swiftoffice.azure_notificationhubs_flutter;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.microsoft.windowsazure.messaging.NotificationHub;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.concurrent.TimeUnit;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -33,13 +29,9 @@ public class RegistrationIntentService extends IntentService {
         String resultString = null;
         String regID = null;
         try {
-            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener < InstanceIdResult > () {
-                @Override
-                public void onSuccess(InstanceIdResult instanceIdResult) {
-                    FCM_token = instanceIdResult.getToken();
-                }
-            });
-            TimeUnit.SECONDS.sleep(1);
+
+            FCM_token = FirebaseInstallations.getInstance().getToken(false).getResult().getToken();
+
             String sha1 = "";
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-1");
@@ -50,7 +42,7 @@ public class RegistrationIntentService extends IntentService {
                 e.printStackTrace();
             }
             String[] tags = {
-                "device:" + sha1
+                    "device:" + sha1
             };
             NotificationSettings nhSettings = new NotificationSettings(getApplicationContext());
             if (((regID = sharedPreferences.getString("registrationID", null)) == null)) {

@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:4.0.2'
     }
 }
 
@@ -22,10 +22,10 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 26
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -39,14 +39,14 @@ android {
     buildToolsVersion '29.0.3'
 
     dependencies {
-        implementation 'com.google.firebase:firebase-core:17.4.4'
-        implementation 'com.google.firebase:firebase-messaging:20.2.3'
+        implementation 'com.google.firebase:firebase-core:18.0.0'
+        implementation 'com.google.firebase:firebase-messaging:21.0.0'
         implementation 'com.microsoft.azure:notification-hubs-android-sdk:0.6'
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.preference:preference:1.1.1'
 }
 
