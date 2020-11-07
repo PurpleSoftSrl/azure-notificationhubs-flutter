@@ -84,6 +84,7 @@ public class NotificationService extends FirebaseMessagingService {
                     ctx,
                     NOTIFICATION_CHANNEL_ID)
                     .setContentTitle(((Map) content.get("data")).get("title").toString())
+                    .setSubText(((Map) content.get("data")).get("subtitle").toString())
                     .setContentText(((Map) content.get("data")).get("body").toString())
                     .setDefaults(DEFAULT_SOUND | DEFAULT_VIBRATE | DEFAULT_ALL)
                     .setPriority(PRIORITY_HIGH)
